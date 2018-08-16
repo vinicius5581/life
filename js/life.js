@@ -1,48 +1,52 @@
 var Board;
+var nextBoard;
 var xsize = 10;
 var ysize = 10;
-
 var dead = 0;
 var alive = 1;
 
-function Neighbors(Board, x, y) {
+function Neighbors(boardSnap, x, y) {
   var n = 0;
-  for (dx = 0; dx <= 2; dx++) {
-    for (dy = 0; dy <= 2; dy++) {
-      var ax = x + (dx - 1);
-      var ay = y + (dy - 1);
-      if (ax >= 0 && ax <= xsize && ay >= 0 && ay <= ysize) {
-        if (Board[ax][ay] === alive) n++;
+  for (dx = -1; dx < 1; ++dx)
+    for (dy = -1; dy < 1; ++dy) {
+      var ax = x + dx;
+      var ay = y + dy;
+      if (ax >= 0 && ax < xsize && ay >= 0 && ay < ysize) {
+        if (boardSnap[ax][ay] === alive) {
+          ++n;
+        }
       }
     }
-  }
   return n;
 }
 
-function Kill(Board, x, y) {
-  if (Board[x][y] == alive) Board[x][y] = dead;
+function Kill(boardSnap, x, y) {
+  if (boardSnap[x][y] === alive) Board[x][y] = dead;
 }
 
-function MakeLive(Board, x, y) {
-  if (Board[x][y] == dead) Board[x][y] = alive;
+function MakeLive(boardSnap, x, y) {
+  if (boardSnap[x][y] === dead) Board[x][y] = alive;
 }
 
 function NextStep(Board) {
-  for (var x = 0; x <= xsize; x++) {
-    for (var y = 0; y <= ysize; x++) {
-      n = Neighbors(Board, x, y);
-      if ((n = 3)) MakeLive(Board, x, y);
-      if (n < 2 || n > 3) Kill(Board, x, y);
+  var boardSnap = [].concat(Board);
+  for (var x = 0; x < xsize; x++) {
+    for (var y = 0; y < ysize; y++) {
+      var n = Neighbors(boardSnap, x, y);
+      if (n === 3) {
+        MakeLive(boardSnap, x, y);
+      }
+      if (n < 2 || n > 3) {
+        Kill(boardSnap, x, y);
+      }
     }
   }
 }
 
 function DrawBoard(Board) {
   var Text = "";
-  for (var y = 0; y <= ysize; y++) {
-    for (var x = 0; x <= xsize; x++) {
-      Text += Board[x][y] == alive ? "o" : "_";
-    }
+  for (var y = 0; y < ysize; ++y) {
+    for (var x = 0; x < xsize; ++x) Text += Board[x][y] == alive ? "o" : "_";
     Text += "<br/>";
   }
   document.getElementById("board").innerHTML = Text;
