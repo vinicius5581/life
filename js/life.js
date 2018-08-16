@@ -1,9 +1,8 @@
 class Life {
   constructor() {
-    this.Board = [];
-    this.boardSnap = [];
-    this.xsize = 20;
-    this.ysize = 20;
+    this.Board;
+    this.xsize = 3;
+    this.ysize = 3;
     this.dead = 0;
     this.alive = 1;
     this.Neighbors = this.Neighbors.bind(this);
@@ -12,39 +11,55 @@ class Life {
     this.NextStep = this.NextStep.bind(this);
   }
 
-  Neighbors(boardSnap, x, y) {
+  Neighbors(Board, x, y) {
     var n = 0;
-    for (var dx = -1; dx < 1; ++dx)
-      for (var dy = -1; dy < 1; ++dy) {
+    for (var dx = -1; dx <= 1; ++dx) {
+      for (var dy = -1; dy <= 1; ++dy) {
         var ax = x + dx;
         var ay = y + dy;
         if (ax >= 0 && ax < this.xsize && ay >= 0 && ay < this.ysize) {
-          console.log(`x: ${x} y: ${y} - ax: ${ax} ay: ${ay}`);
-          if (boardSnap[ax][ay] === this.alive) {
-            n++;
+          // console.log(`ax: ${ax} ay: ${ay} - alive: ${Board[ax][ay]}`);
+          if (!(ax === x && ay === y)) {
+            if (Board[ax][ay] === this.alive) {
+              n++;
+            }
           }
         }
       }
+    }
+    console.log(
+      `== Neighbors x: ${x} y: ${y} Board: ${Board} this.Board: ${
+        this.Board
+      } - n: ${n} alive: ${Board[x][y]}`
+    );
     return n;
   }
 
-  Kill(boardSnap, x, y) {
-    if (this.Board[x][y] === this.alive) this.Board[x][y] = this.dead;
+  Kill(Board, x, y) {
+    if (Board[x][y] === this.alive) {
+      Board[x][y] = this.dead;
+    }
   }
 
-  MakeLive(boardSnap, x, y) {
-    if (this.Board[x][y] === this.dead) this.Board[x][y] = this.alive;
+  MakeLive(Board, x, y) {
+    if (Board[x][y] === this.dead) {
+      Board[x][y] = this.alive;
+    }
   }
 
   NextStep() {
-    this.boardSnap = [].concat(this.Board);
+    console.log("::: Next Step");
+    var boardSnapshot = this.Board.slice();
+    console.log("boardSnapshot", boardSnapshot);
     for (var x = 0; x < this.xsize; x++) {
       for (var y = 0; y < this.ysize; y++) {
-        var n = this.Neighbors(this.boardSnap, x, y);
+        var n = this.Neighbors(boardSnapshot, x, y);
         if (n === 3) {
+          // console.log("makeLive");
           this.MakeLive(this.Board, x, y);
         }
         if (n < 2 || n > 3) {
+          // console.log("kill");
           this.Kill(this.Board, x, y);
         }
       }
@@ -54,8 +69,8 @@ class Life {
 
   DrawBoard() {
     var Text = "";
-    for (var y = 0; y < this.ysize; ++y) {
-      for (var x = 0; x < this.xsize; ++x)
+    for (let y = 0; y < this.ysize; ++y) {
+      for (let x = 0; x < this.xsize; ++x)
         Text += this.Board[x][y] == this.alive ? "o" : "_";
       Text += "<br/>";
     }
@@ -64,7 +79,7 @@ class Life {
 
   Main() {
     // *** Change this variable to choose a different baord setup from below
-    var BoardSetup = "flower";
+    var BoardSetup = "blinker";
 
     this.Board = new Array(this.xsize);
     for (var x = 0; x < this.xsize; ++x) {
@@ -103,6 +118,12 @@ class Life {
       this.Board[8][8] = 1;
       this.Board[9][8] = 1;
       this.Board[10][8] = 1;
+    }
+
+    for (var col = 0; col < this.xsize; col++) {
+      for (var row = 0; row < this.ysize; row++) {
+        this.Neighbors(this.Board, col, row);
+      }
     }
 
     this.DrawBoard(this.Board);
